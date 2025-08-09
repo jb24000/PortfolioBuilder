@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Builder - Document Builder</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Portfolio">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Professional PDF document builder with dark mode and export features">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTYwIDYwSDEzMlY3Mkg2MFY2MFpNNjAgOTBIMTMyVjEwMkg2MFY5MFpNNjAgMTIwSDEwMlYxMzJINjBWMTIwWiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTYwIDYwSDEzMlY3Mkg2MFY2MFpNNjAgOTBIMTMyVjEwMkg2MFY5MFpNNjAgMTIwSDEwMlYxMzJINjBWMTIwWiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/PDFConverterPro/manifest.json">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #333333 0%, #555555 100%);
+            border-radius: 15px;
+            border: 1px solid #444444;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #cccccc;
+        }
+
+        .install-prompt {
+            background: #222222;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #444444;
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        .install-prompt button {
+            background: #444444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .form-section {
+            background: #111111;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+            border: 1px solid #333333;
+        }
+
+        .form-section h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        input[type="text"], 
+        input[type="url"], 
+        textarea, 
+        select {
+            width: 100%;
+            padding: 12px;
+            background: #222222;
+            border: 2px solid #444444;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, 
+        input[type="url"]:focus, 
+        textarea:focus, 
+        select:focus {
+            outline: none;
+            border-color: #666666;
+            background: #333333;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            background: #222222;
+            border: 2px dashed #666666;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: #333333;
+            color: #ffffff;
+            padding: 12px 25px;
+            border: 2px solid #555555;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #444444;
+            border-color: #666666;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #222222;
+            border-color: #444444;
+        }
+
+        .btn-secondary:hover {
+            background: #333333;
+            border-color: #555555;
+        }
+
+        .btn-danger {
+            background: #660000;
+            border-color: #880000;
+        }
+
+        .btn-danger:hover {
+            background: #770000;
+            border-color: #990000;
+        }
+
+        .step-item {
+            background: #111111;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #333333;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .step-number {
+            background: #444444;
+            color: #ffffff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            border: 1px solid #666666;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #444444;
+        }
+
+        .preview-section {
+            background: #111111;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 1px solid #333333;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        /* PDF OUTPUT STYLES */
+        .pdf-page {
+            width: 8.5in;
+            height: 11in;
+            background: #000000 !important;
+            color: #ffffff !important;
+            padding: 0.75in;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+            page-break-after: always;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #333333;
+        }
+
+        .pdf-page:last-child {
+            page-break-after: auto;
+        }
+
+        .pdf-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0.5in;
+            background: #333333;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.75in;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+            border-bottom: 1px solid #555555;
+        }
+
+        .pdf-footer {
+            position: absolute;
+            bottom: 0.3in;
+            right: 0.75in;
+            font-size: 11px;
+            color: #cccccc;
+            text-align: right;
+            line-height: 1.3;
+        }
+
+        .title-page {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .title-page h1 {
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 30px;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .title-page .author-info {
+            margin-top: 40px;
+            font-size: 18px;
+            color: #cccccc;
+        }
+
+        .title-page .author-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .overview-page h2 {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            margin-top: 40px;
+        }
+
+        .overview-page h2:first-child {
+            margin-top: 0;
+        }
+
+        .overview-page h3 {
+            color: #cccccc;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            margin-top: 25px;
+        }
+
+        .overview-page p {
+            color: #ffffff;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .step-page h2 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .step-page h3 {
+            color: #cccccc;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            margin-top: 25px;
+        }
+
+        .step-page p {
+            color: #ffffff;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .step-page img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: block;
+            border: 1px solid #444444;
+        }
+
+        .final-page {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .final-page h1 {
+            color: #ffffff;
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+
+        .final-page h2 {
+            color: #cccccc;
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 30px;
+        }
+
+        .final-page p {
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        @media print {
+            body {
+                background: #000000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .pdf-page {
+                background: #000000 !important;
+                color: #ffffff !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: 100vh !important;
+            }
+            
+            .pdf-header {
+                background: #333333 !important;
+                color: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .container, .form-section, .preview-section, .controls {
+                display: none !important;
+            }
+            
+            #previewContent {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .form-section {
+                padding: 20px;
+            }
+            
+            .pdf-page {
+                width: 100%;
+                height: auto;
+                min-height: 90vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Install Prompt -->
+        <div id="installPrompt" class="install-prompt">
+            <span>📱 Install this app for offline use!</span>
+            <button onclick="installPWA()">Install</button>
+        </div>
+
+        <div class="header">
+            <h1>📄 Portfolio Builder</h1>
+            <p>Create professional PDF documentation in dark mode</p>
+        </div>
+
+        <!-- Project Info Section -->
+        <div class="form-section">
+            <h2>📋 Project Information</h2>
+            <div class="form-group">
+                <label for="projectTitle">Project Title</label>
+                <input type="text" id="projectTitle" placeholder="e.g., Set Up Kubernetes Deployment">
+            </div>
+            <div class="form-group">
+                <label for="authorName">Author Name</label>
+                <input type="text" id="authorName" placeholder="Your Name">
+            </div>
+            <div class="form-group">
+                <label for="authorTitle">Author Title</label>
+                <input type="text" id="authorTitle" placeholder="e.g., Software Developer">
+            </div>
+            <div class="form-group">
+                <label for="websiteUrl">Website URL</label>
+                <input type="url" id="websiteUrl" value="jb24000.github.io" placeholder="jb24000.github.io">
+            </div>
+        </div>
+
+        <!-- Project Overview Section -->
+        <div class="form-section">
+            <h2>📝 Project Overview</h2>
+            <div class="form-group">
+                <label for="projectIntro">Project Introduction</label>
+                <textarea id="projectIntro" placeholder="In this project, I will..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="toolsConcepts">Tools and Concepts</label>
+                <textarea id="toolsConcepts" placeholder="I used technologies like..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="projectReflection">Project Reflection</label>
+                <textarea id="projectReflection" placeholder="This project took me approximately..."></textarea>
+            </div>
+        </div>
+
+        <!-- Steps Section -->
+        <div class="form-section">
+            <h2>📸 Project Steps</h2>
+            <div id="stepsContainer">
+                <!-- Steps will be added here dynamically -->
+            </div>
+            <button class="btn" onclick="addStep()">+ Add Step</button>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn" onclick="generatePreview()">👀 Preview</button>
+            <button class="btn" onclick="generatePDF()">📄 Generate PDF</button>
+            <button class="btn btn-secondary" onclick="saveProject()">💾 Save Project</button>
+            <button class="btn btn-secondary" onclick="loadProject()">📂 Load Project</button>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section" id="previewSection" style="display: none;">
+            <h2>📖 Preview</h2>
+            <div id="previewContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let stepCounter = 0;
+        let deferredPrompt;
+        let projectData = {
+            title: '',
+            author: '',
+            authorTitle: '',
+            website: 'jb24000.github.io',
+            intro: '',
+            tools: '',
+            reflection: '',
+            steps: []
+        };
+
+        // PWA Installation
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.add('show');
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').classList.remove('show');
+                });
+            }
+        }
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA installed successfully');
+            document.getElementById('installPrompt').classList.remove('show');
+        });
+
+        function addStep() {
+            stepCounter++;
+            const stepsContainer = document.getElementById('stepsContainer');
+            
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'step-item';
+            stepDiv.innerHTML = `
+                <div class="step-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="step-number">${stepCounter}</div>
+                        <h3>Step ${stepCounter}</h3>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeStep(this)">Remove</button>
+                </div>
+                <div class="form-group">
+                    <label>Step Title</label>
+                    <input type="text" class="step-title" placeholder="e.g., Setting up the environment">
+                </div>
+                <div class="form-group">
+                    <label>Step Description</label>
+                    <textarea class="step-description" placeholder="Describe what you did in this step..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Step Image</label>
+                    <input type="file" class="step-image" accept="image/*" onchange="previewImage(this)">
+                    <div class="image-preview-container"></div>
+                </div>
+            `;
+            
+            stepsContainer.appendChild(stepDiv);
+            saveToLocalStorage();
+        }
+
+        function removeStep(button) {
+            button.closest('.step-item').remove();
+            updateStepNumbers();
+            saveToLocalStorage();
+        }
+
+        function updateStepNumbers() {
+            const steps = document.querySelectorAll('.step-item');
+            steps.forEach((step, index) => {
+                const stepNumber = step.querySelector('.step-number');
+                const stepTitle = step.querySelector('h3');
+                stepNumber.textContent = index + 1;
+                stepTitle.textContent = `Step ${index + 1}`;
+            });
+            stepCounter = steps.length;
+        }
+
+        function previewImage(input) {
+            const container = input.parentElement.querySelector('.image-preview-container');
+            container.innerHTML = '';
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'image-preview';
+                    container.appendChild(img);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveToLocalStorage() {
+            collectProjectData().then(() => {
+                localStorage.setItem('docBuilderProject', JSON.stringify(projectData));
+            });
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('docBuilderProject');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    loadProjectData(data);
+                } catch (error) {
+                    console.error('Error loading saved data:', error);
+                }
+            }
+        }
+
+        function collectProjectData() {
+            projectData.title = document.getElementById('projectTitle').value;
+            projectData.author = document.getElementById('authorName').value;
+            projectData.authorTitle = document.getElementById('authorTitle').value;
+            projectData.website = document.getElementById('websiteUrl').value || 'jb24000.github.io';
+            projectData.intro = document.getElementById('projectIntro').value;
+            projectData.tools = document.getElementById('toolsConcepts').value;
+            projectData.reflection = document.getElementById('projectReflection').value;
+            
+            projectData.steps = [];
+            const stepItems = document.querySelectorAll('.step-item');
+            
+            const promises = [];
+            
+            stepItems.forEach((step, index) => {
+                const title = step.querySelector('.step-title').value;
+                const description = step.querySelector('.step-description').value;
+                const imageInput = step.querySelector('.step-image');
+                
+                projectData.steps.push({
+                    title: title,
+                    description: description,
+                    image: null
+                });
+                
+                if (imageInput.files && imageInput.files[0]) {
+                    const promise = new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            projectData.steps[index].image = e.target.result;
+                            resolve();
+                        };
+                        reader.readAsDataURL(imageInput.files[0]);
+                    });
+                    promises.push(promise);
+                }
+            });
+            
+            return Promise.all(promises);
+        }
+
+        function generatePreview() {
+            collectProjectData().then(() => {
+                const previewSection = document.getElementById('previewSection');
+                const previewContent = document.getElementById('previewContent');
+                
+                let html = '';
+                
+                // Title Page
+                html += `
+                    <div class="pdf-page title-page">
+                        <div class="pdf-header">${projectData.website}</div>
+                        <h1>${projectData.title || 'Project Title'}</h1>
+                        <div class="author-info">
+                            <div class="author-name">${projectData.author || 'Author Name'}</div>
+                            <div>${projectData.authorTitle || 'Author Title'}</div>
+                        </div>
+                        <div class="pdf-footer">
+                            ${projectData.author || 'Author Name'}<br>
+                            ${projectData.authorTitle || 'Author Title'}
+                        </div>
+                    </div>
+                `;
+                
+                // Overview Page
+                html += `
+                    <div class="pdf-page overview-page">
+                        <div class="pdf-header">${projectData.website}</div>
+                        <h2>Introducing Today's Project!</h2>
+                        <p>${projectData.intro || 'Project introduction goes here...'}</p>
+                        
+                        <h3>Tools and concepts</h3>
+                        <p>${projectData.tools || 'Tools and concepts used in this project...'}</p>
+                        
+                        <h3>Project reflection</h3>
+                        <p>${projectData.reflection || 'Project reflection and learnings...'}</p>
+                        
+                        <div class="pdf-footer">
+                            ${projectData.author || 'Author Name'}<br>
+                            ${projectData.authorTitle || 'Author Title'}
+                        </div>
+                    </div>
+                `;
+                
+                // Step Pages
+                projectData.steps.forEach((step, index) => {
+                    if (step.title || step.description) {
+                        html += `
+                            <div class="pdf-page step-page">
+                                <div class="pdf-header">${projectData.website}</div>
+                                <h2>${step.title || `Step ${index + 1}`}</h2>
+                                ${step.image ? `<img src="${step.image}" alt="Step ${index + 1}">` : ''}
+                                <p>${step.description || ''}</p>
+                                <div class="pdf-footer">
+                                    ${projectData.author || 'Author Name'}<br>
+                                    ${projectData.authorTitle || 'Author Title'}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                // Final Page
+                html += `
+                    <div class="pdf-page final-page">
+                        <h1>${projectData.website}</h1>
+                        <h2>The place to learn &<br>showcase your skills</h2>
+                        <p>Check out ${projectData.website} for more projects</p>
+                    </div>
+                `;
+                
+                previewContent.innerHTML = html;
+                previewSection.style.display = 'block';
+                previewSection.scrollIntoView({ behavior: 'smooth' });
+                saveToLocalStorage();
+            });
+        }
+
+        function generatePDF() {
+            generatePreview();
+            setTimeout(() => {
+                alert('To save as PDF:\n\n1. Press Ctrl+P (or Cmd+P on Mac)\n2. Select "Save as PDF" as destination\n3. In "More settings", make sure "Background graphics" is checked\n4. Click Save\n\nThis will preserve the dark background!');
+                window.print();
+            }, 1000);
+        }
+
+        function saveProject() {
+            collectProjectData().then(() => {
+                const dataStr = JSON.stringify(projectData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `${projectData.title || 'project'}.json`;
+                link.click();
+                saveToLocalStorage();
+            });
+        }
+
+        function loadProject() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            loadProjectData(data);
+                        } catch (error) {
+                            alert('Error loading project file');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            
+            input.click();
+        }
+
+        function loadProjectData(data) {
+            document.getElementById('projectTitle').value = data.title || '';
+            document.getElementById('authorName').value = data.author || '';
+            document.getElementById('authorTitle').value = data.authorTitle || '';
+            document.getElementById('websiteUrl').value = data.website || 'jb24000.github.io';
+            document.getElementById('projectIntro').value = data.intro || '';
+            document.getElementById('toolsConcepts').value = data.tools || '';
+            document.getElementById('projectReflection').value = data.reflection || '';
+            
+            // Clear existing steps
+            document.getElementById('stepsContainer').innerHTML = '';
+            stepCounter = 0;
+            
+            // Load steps
+            if (data.steps) {
+                data.steps.forEach(step => {
+                    addStep();
+                    const lastStep = document.querySelector('.step-item:last-child');
+                    lastStep.querySelector('.step-title').value = step.title || '';
+                    lastStep.querySelector('.step-description').value = step.description || '';
+                });
+            }
+        }
+
+        // Auto-save on input change
+        document.addEventListener('input', (e) => {
+            if (e.target.matches('input, textarea')) {
+                saveToLocalStorage();
+            }
+        });
+
+        // Initialize
+        document.getElementById('websiteUrl').value = 'jb24000.github.io';
+        
+        // Load saved data on page load
+        window.addEventListener('load', () => {
+            loadFromLocalStorage();
+            if (document.querySelectorAll('.step-item').length === 0) {
+                addStep();
+            }
+        });
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/PDFConverterPro/sw.js')
+                .then(registration => console.log('Service Worker registered'))
+                .catch(error => console.log('Service Worker registration failed:', error));
+        }
+    </script>
+</body>
+</html>
