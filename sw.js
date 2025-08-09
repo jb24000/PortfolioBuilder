@@ -41,11 +41,11 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((cacheName) => {
-              return cacheName.startsWith('pdf-converter-pro-') && 
-                     cacheName !== CACHE_NAME && 
-                     cacheName !== DYNAMIC_CACHE;
-            })
+     .filter((cacheName) => {
+          return cacheName.startsWith('portfolio-builder-') && 
+                 cacheName !== CACHE_NAME && 
+                 cacheName !== DYNAMIC_CACHE;
+})
             .map((cacheName) => {
               console.log('[Service Worker] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
