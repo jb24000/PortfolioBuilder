@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline - PDF Converter Pro</title>
+    <title>Offline - Portfolio Builder</title>
     <style>
         * {
             margin: 0;
@@ -218,12 +218,12 @@
             button.disabled = true;
             
             // Try to fetch a small resource
-            fetch('/PDFConverterPro/manifest.json', { method: 'HEAD' })
+            fetch('/PortfolioBuilder/manifest.json', { method: 'HEAD' })
                 .then(() => {
                     // Connection restored
                     updateStatus(true);
                     setTimeout(() => {
-                        window.location.href = '/PDFConverterPro/';
+                        window.location.href = '/PortfolioBuilder/';
                     }, 1500);
                 })
                 .catch(() => {
@@ -249,10 +249,10 @@
 
         // Auto-check connection every 5 seconds
         setInterval(() => {
-            fetch('/PDFConverterPro/manifest.json', { method: 'HEAD' })
+            fetch('/PortfolioBuilder/manifest.json', { method: 'HEAD' })
                 .then(() => {
                     updateStatus(true);
-                    window.location.href = '/PDFConverterPro/';
+                    window.location.href = '/PortfolioBuilder/';
                 })
                 .catch(() => {
                     // Still offline, do nothing
@@ -263,7 +263,7 @@
         window.addEventListener('online', () => {
             updateStatus(true);
             setTimeout(() => {
-                window.location.href = '/PDFConverterPro/';
+                window.location.href = '/PortfolioBuilder/';
             }, 1000);
         });
 
