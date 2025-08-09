@@ -1,5 +1,5 @@
 {
-  "name": "PDF Converter Pro - Document Builder",
+  "name": "Portfolio Builder - Document Builder",
   "short_name": "Portfolio Builder",
   "description": "Professional PDF document builder with dark mode, project management, and export features",
   "start_url": "/PortfolioBuilder/",
@@ -125,7 +125,7 @@
   
   "file_handlers": [
     {
-      "action": "/PDFConverterPro/",
+      "action": "/PortfolioBuilder/",
       "accept": {
         "application/json": [".json"]
       }
