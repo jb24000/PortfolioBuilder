@@ -2,7 +2,7 @@
   "name": "Portfolio Builder - Document Builder",
   "short_name": "Portfolio Builder",
   "description": "Professional PDF document builder with dark mode, project management, and export features",
-  "start_url": "./",
+  "start_url": "/PortfolioBuilder/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
@@ -11,37 +11,27 @@
   "lang": "en-US",
   "dir": "ltr",
   "prefer_related_applications": false,
-  "scope": "./",
-  "id": "doc-builder-pwa-v1",
+  "scope": "/PortfolioBuilder/",
+  "id": "/PortfolioBuilder/",
   
   "icons": [
+    {
+      "src": "/PortfolioBuilder/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/PortfolioBuilder/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
     {
       "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTYwIDYwSDEzMlY3Mkg2MFY2MFpNNjAgOTBIMTMyVjEwMkg2MFY5MFpNNjAgMTIwSDEwMlYxMzJINjBWMTIwWiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
-    },
-    {
-      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTE2MCAxNjBIMzUyVjE5MkgxNjBWMTYwWk0xNjAgMjQwSDM1MlYyNzJIMTYwVjI0MFpNMTYwIDMyMEgyNzJWMzUySDE2MFYzMjBaIiBmaWxsPSIjZmZmZmZmIi8+Cjwvc3ZnPg==",
-      "sizes": "512x512",
-      "type": "image/svg+xml"
-    },
-    {
-      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTYiIGZpbGw9IiMxMTExMTEiLz48cGF0aCBkPSJNMzAgMzBINjZWMzhIMzBWMzBaTTMwIDQ0SDY2VjUySDMwVjQ0Wk0zMCA1OEg1MVY2NkgzMFY1OFoiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=",
-      "sizes": "96x96",
-      "type": "image/svg+xml"
     }
-  ],
-  
-  "features": [
-    "Dark mode interface",
-    "PDF generation",
-    "Project templates",
-    "Image support",
-    "Auto-save",
-    "Offline functionality",
-    "Export/Import projects",
-    "Professional formatting"
   ],
   
   "shortcuts": [
@@ -52,90 +42,11 @@
       "url": "/PortfolioBuilder/?action=new",
       "icons": [
         {
-          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTYiIGZpbGw9IiMyMjIyMjIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iNDgiPis8L3RleHQ+PC9zdmc+",
-          "sizes": "96x96"
+          "src": "/PortfolioBuilder/icons/new-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
         }
       ]
-    },
-    {
-      "name": "Load Project",
-      "short_name": "Load",
-      "description": "Load an existing project",
-      "url": "/PortfolioBuilder/?action=load",
-      "icons": [
-        {
-          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTYiIGZpbGw9IiMzMzMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMzYiPvCfk4I8L3RleHQ+PC9zdmc+",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Generate PDF",
-      "short_name": "PDF",
-      "description": "Generate PDF from current project",
-      "url": "/PortfolioBuilder/?action=pdf",
-      "icons": [
-        {
-          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTYiIGZpbGw9IiM0NDQ0NDQiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMzYiPvCfk4Q8L3RleHQ+PC9zdmc+",
-          "sizes": "96x96"
-        }
-      ]
-    }
-  ],
-  
-  "related_applications": [],
-  
-  "screenshots": [
-    {
-      "src": "/screenshot1.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "label": "Main documentation builder interface"
-    },
-    {
-      "src": "/screenshot2.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "label": "PDF preview in dark mode"
-    },
-    {
-      "src": "/screenshot3.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "label": "Project steps with images"
-    }
-  ],
-  
-  "share_target": {
-    "action": "/PortfolioBuilder/share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url",
-      "files": [
-        {
-          "name": "file",
-          "accept": ["application/json", ".json"]
-        }
-      ]
-    }
-  },
-  
-  "file_handlers": [
-    {
-      "action": "/PortfolioBuilder/",
-      "accept": {
-        "application/json": [".json"]
-      }
-    }
-  ],
-  
-  "protocol_handlers": [
-    {
-      "protocol": "web+docbuilder",
-      "url": "/PortfolioBuilder/?project=%s"
     }
   ]
 }
