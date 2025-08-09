@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - PDF Converter Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+            background: #111111;
+            padding: 60px 40px;
+            border-radius: 30px;
+            border: 1px solid #333333;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                opacity: 0.8; 
+            }
+            50% { 
+                transform: scale(1.1); 
+                opacity: 1; 
+            }
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            color: #cccccc;
+        }
+
+        .status-info {
+            background: #222222;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid #444444;
+        }
+
+        .status-info h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .feature-list {
+            text-align: left;
+            font-size: 14px;
+            color: #cccccc;
+        }
+
+        .feature-list li {
+            margin-bottom: 8px;
+            list-style: none;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #66ff66;
+            font-weight: bold;
+        }
+
+        .retry-button {
+            background: #333333;
+            color: #ffffff;
+            border: 2px solid #555555;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .retry-button:hover {
+            background: #444444;
+            border-color: #666666;
+            transform: translateY(-2px);
+        }
+
+        .retry-button:active {
+            transform: translateY(0);
+        }
+
+        .connection-status {
+            margin-top: 20px;
+            padding: 10px;
+            background: #222222;
+            border-radius: 10px;
+            font-size: 14px;
+            border: 1px solid #444444;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 2s infinite;
+        }
+
+        .status-indicator.offline {
+            background: #ff4444;
+        }
+
+        .status-indicator.online {
+            background: #44ff44;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .tip {
+            margin-top: 30px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            border-left: 3px solid #666666;
+            font-size: 13px;
+            color: #aaaaaa;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📡</div>
+        
+        <h1>You're Offline</h1>
+        
+        <p>No internet connection detected. Your project data is safely stored locally.</p>
+        
+        <div class="status-info">
+            <h3>💾 Available Offline Features</h3>
+            <ul class="feature-list">
+                <li>Create and edit projects</li>
+                <li>Add project steps with descriptions</li>
+                <li>Preview your documentation</li>
+                <li>Save projects locally</li>
+                <li>Auto-save functionality</li>
+                <li>Generate PDF (when online)</li>
+            </ul>
+        </div>
+        
+        <button class="retry-button" onclick="checkConnection()">
+            🔄 Check Connection
+        </button>
+        
+        <div class="connection-status">
+            <span class="status-indicator offline" id="statusIndicator"></span>
+            <span id="statusText">Currently offline</span>
+        </div>
+
+        <div class="tip">
+            <strong>💡 Tip:</strong> Your work is automatically saved to your device. When you're back online, all features will be restored including PDF generation and cloud sync.
+        </div>
+    </div>
+
+    <script>
+        // Check connection status
+        function checkConnection() {
+            const button = document.querySelector('.retry-button');
+            button.textContent = '⏳ Checking...';
+            button.disabled = true;
+            
+            // Try to fetch a small resource
+            fetch('/PDFConverterPro/manifest.json', { method: 'HEAD' })
+                .then(() => {
+                    // Connection restored
+                    updateStatus(true);
+                    setTimeout(() => {
+                        window.location.href = '/PDFConverterPro/';
+                    }, 1500);
+                })
+                .catch(() => {
+                    // Still offline
+                    updateStatus(false);
+                    button.textContent = '🔄 Check Connection';
+                    button.disabled = false;
+                });
+        }
+
+        function updateStatus(isOnline) {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            if (isOnline) {
+                indicator.className = 'status-indicator online';
+                statusText.textContent = 'Connection restored! Redirecting...';
+            } else {
+                indicator.className = 'status-indicator offline';
+                statusText.textContent = 'Still offline - check your connection';
+            }
+        }
+
+        // Auto-check connection every 5 seconds
+        setInterval(() => {
+            fetch('/PDFConverterPro/manifest.json', { method: 'HEAD' })
+                .then(() => {
+                    updateStatus(true);
+                    window.location.href = '/PDFConverterPro/';
+                })
+                .catch(() => {
+                    // Still offline, do nothing
+                });
+        }, 5000);
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            updateStatus(true);
+            setTimeout(() => {
+                window.location.href = '/PDFConverterPro/';
+            }, 1000);
+        });
+
+        window.addEventListener('offline', () => {
+            updateStatus(false);
+        });
+
+        // Check if we have cached project data
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            const messageChannel = new MessageChannel();
+            
+            messageChannel.port1.onmessage = (event) => {
+                if (event.data.type === 'CACHED_PROJECT' && event.data.project) {
+                    const cacheInfo = document.createElement('div');
+                    cacheInfo.className = 'status-info';
+                    cacheInfo.style.marginTop = '20px';
+                    cacheInfo.innerHTML = `
+                        <h3>📋 Cached Project Found</h3>
+                        <p style="font-size: 14px; color: #aaa;">
+                            "${event.data.project.title || 'Untitled Project'}" 
+                            is saved and will be available when you return online.
+                        </p>
+                    `;
+                    document.querySelector('.tip').before(cacheInfo);
+                }
+            };
+            
+            navigator.serviceWorker.controller.postMessage(
+                { type: 'GET_CACHED_PROJECT' },
+                [messageChannel.port2]
+            );
+        }
+    </script>
+</body>
+</html>
