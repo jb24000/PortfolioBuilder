@@ -2,7 +2,7 @@
   "name": "PDF Converter Pro - Document Builder",
   "short_name": "Portfolio Builder",
   "description": "Professional PDF document builder with dark mode, project management, and export features",
-  "start_url": "/Portfolio/",
+  "start_url": "/PortfolioBuilder/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
