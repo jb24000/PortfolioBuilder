@@ -456,6 +456,53 @@
                 min-height: 90vh;
             }
         }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Accessibility improvements */
+        [aria-busy="true"] {
+            opacity: 0.7;
+            cursor: progress;
+        }
+
+        /* Floating install button */
+        #floatingInstallBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s;
+        }
+
+        #floatingInstallBtn:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -524,6 +571,7 @@
             <button class="btn" onclick="generatePDF()">📄 Generate PDF</button>
             <button class="btn btn-secondary" onclick="saveProject()">💾 Save Project</button>
             <button class="btn btn-secondary" onclick="loadProject()">📂 Load Project</button>
+            <div class="spinner" id="pdfSpinner"></div>
         </div>
 
         <!-- Preview Section -->
@@ -533,10 +581,16 @@
         </div>
     </div>
 
+    <!-- Floating Install Button (hidden by default) -->
+    <button id="floatingInstallBtn" style="display: none;" aria-label="Install app">
+        📱 Install Portfolio Builder
+    </button>
+
     <script>
+        // Global variables
         let stepCounter = 0;
-        let deferredPrompt;
-        let installButton = null;
+        let deferredPrompt = null;
+        let installButton = document.getElementById('floatingInstallBtn');
         let projectData = {
             title: '',
             author: '',
@@ -548,11 +602,12 @@
             steps: []
         };
 
-        // PWA Installation
+        // ========== PWA Installation ========== //
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             document.getElementById('installPrompt').classList.add('show');
+            installButton.style.display = 'flex';
             console.log('Install prompt is ready!');
         });
 
@@ -560,9 +615,12 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
-                   console.log('User choice:', choiceResult.outcome);
-                   deferredPrompt = null;
-                   document.getElementById('installPrompt').classList.remove('show');
+                    console.log('User choice:', choiceResult.outcome);
+                    if (choiceResult.outcome === 'accepted') {
+                        installButton.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').classList.remove('show');
                 });
             }
         }
@@ -570,8 +628,10 @@
         window.addEventListener('appinstalled', () => {
             console.log('PWA installed successfully');
             document.getElementById('installPrompt').classList.remove('show');
+            installButton.style.display = 'none';
         });
 
+        // ========== Project Management ========== //
         function addStep() {
             stepCounter++;
             const stepsContainer = document.getElementById('stepsContainer');
@@ -584,7 +644,7 @@
                         <div class="step-number">${stepCounter}</div>
                         <h3>Step ${stepCounter}</h3>
                     </div>
-                    <button class="btn btn-danger" onclick="removeStep(this)">Remove</button>
+                    <button class="btn btn-danger" onclick="removeStep(this)" aria-label="Remove step">Remove</button>
                 </div>
                 <div class="form-group">
                     <label>Step Title</label>
@@ -596,7 +656,7 @@
                 </div>
                 <div class="form-group">
                     <label>Step Image</label>
-                    <input type="file" class="step-image" accept="image/*" onchange="previewImage(this)">
+                    <input type="file" class="step-image" accept="image/*" onchange="previewImage(this)" aria-label="Upload step image">
                     <div class="image-preview-container"></div>
                 </div>
             `;
@@ -606,9 +666,11 @@
         }
 
         function removeStep(button) {
-            button.closest('.step-item').remove();
-            updateStepNumbers();
-            saveToLocalStorage();
+            if (confirm('Are you sure you want to remove this step?')) {
+                button.closest('.step-item').remove();
+                updateStepNumbers();
+                saveToLocalStorage();
+            }
         }
 
         function updateStepNumbers() {
@@ -627,78 +689,141 @@
             container.innerHTML = '';
             
             if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                    alert('Image size should be less than 2MB');
+                    input.value = '';
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.className = 'image-preview';
+                    img.alt = 'Step preview image';
                     container.appendChild(img);
                 };
-                reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // ========== Data Management ========== //
+        async function collectProjectData() {
+            try {
+                projectData.title = document.getElementById('projectTitle').value;
+                projectData.author = document.getElementById('authorName').value;
+                projectData.authorTitle = document.getElementById('authorTitle').value;
+                projectData.website = document.getElementById('websiteUrl').value || 'jb24000.github.io';
+                projectData.intro = document.getElementById('projectIntro').value;
+                projectData.tools = document.getElementById('toolsConcepts').value;
+                projectData.reflection = document.getElementById('projectReflection').value;
+                
+                projectData.steps = [];
+                const stepItems = document.querySelectorAll('.step-item');
+                
+                const promises = [];
+                
+                stepItems.forEach((step, index) => {
+                    const title = step.querySelector('.step-title').value;
+                    const description = step.querySelector('.step-description').value;
+                    const imageInput = step.querySelector('.step-image');
+                    
+                    projectData.steps.push({
+                        title: title,
+                        description: description,
+                        image: null
+                    });
+                    
+                    if (imageInput.files && imageInput.files[0]) {
+                        const promise = new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                projectData.steps[index].image = e.target.result;
+                                resolve();
+                            };
+                            reader.readAsDataURL(imageInput.files[0]);
+                        });
+                        promises.push(promise);
+                    }
+                });
+                
+                await Promise.all(promises);
+                return true;
+            } catch (error) {
+                console.error('Error collecting project data:', error);
+                return false;
             }
         }
 
         function saveToLocalStorage() {
             collectProjectData().then(() => {
-                localStorage.setItem('docBuilderProject', JSON.stringify(projectData));
+                try {
+                    localStorage.setItem('docBuilderProject', JSON.stringify(projectData));
+                } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                    if (error.name === 'QuotaExceededError') {
+                        alert('Storage limit reached. Try reducing image sizes or saving as a file instead.');
+                    }
+                }
             });
         }
 
         function loadFromLocalStorage() {
-            const saved = localStorage.getItem('docBuilderProject');
-            if (saved) {
-                try {
+            try {
+                const saved = localStorage.getItem('docBuilderProject');
+                if (saved) {
                     const data = JSON.parse(saved);
                     loadProjectData(data);
-                } catch (error) {
-                    console.error('Error loading saved data:', error);
                 }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
             }
         }
 
-        function collectProjectData() {
-            projectData.title = document.getElementById('projectTitle').value;
-            projectData.author = document.getElementById('authorName').value;
-            projectData.authorTitle = document.getElementById('authorTitle').value;
-            projectData.website = document.getElementById('websiteUrl').value || 'jb24000.github.io';
-            projectData.intro = document.getElementById('projectIntro').value;
-            projectData.tools = document.getElementById('toolsConcepts').value;
-            projectData.reflection = document.getElementById('projectReflection').value;
-            
-            projectData.steps = [];
-            const stepItems = document.querySelectorAll('.step-item');
-            
-            const promises = [];
-            
-            stepItems.forEach((step, index) => {
-                const title = step.querySelector('.step-title').value;
-                const description = step.querySelector('.step-description').value;
-                const imageInput = step.querySelector('.step-image');
+        function loadProjectData(data) {
+            try {
+                document.getElementById('projectTitle').value = data.title || '';
+                document.getElementById('authorName').value = data.author || '';
+                document.getElementById('authorTitle').value = data.authorTitle || '';
+                document.getElementById('websiteUrl').value = data.website || 'jb24000.github.io';
+                document.getElementById('projectIntro').value = data.intro || '';
+                document.getElementById('toolsConcepts').value = data.tools || '';
+                document.getElementById('projectReflection').value = data.reflection || '';
                 
-                projectData.steps.push({
-                    title: title,
-                    description: description,
-                    image: null
-                });
+                // Clear existing steps
+                document.getElementById('stepsContainer').innerHTML = '';
+                stepCounter = 0;
                 
-                if (imageInput.files && imageInput.files[0]) {
-                    const promise = new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            projectData.steps[index].image = e.target.result;
-                            resolve();
-                        };
-                        reader.readAsDataURL(imageInput.files[0]);
+                // Load steps
+                if (data.steps && data.steps.length > 0) {
+                    data.steps.forEach(step => {
+                        addStep();
+                        const lastStep = document.querySelector('.step-item:last-child');
+                        lastStep.querySelector('.step-title').value = step.title || '';
+                        lastStep.querySelector('.step-description').value = step.description || '';
+                        
+                        if (step.image) {
+                            const container = lastStep.querySelector('.image-preview-container');
+                            container.innerHTML = `<img src="${step.image}" class="image-preview" alt="Step image">`;
+                        }
                     });
-                    promises.push(promise);
                 }
-            });
-            
-            return Promise.all(promises);
+            } catch (error) {
+                console.error('Error loading project data:', error);
+                alert('Error loading project data');
+            }
         }
 
-        function generatePreview() {
-            collectProjectData().then(() => {
+        // ========== PDF Generation ========== //
+        async function generatePreview() {
+            const spinner = document.getElementById('pdfSpinner');
+            spinner.style.display = 'block';
+            
+            try {
+                const success = await collectProjectData();
+                if (!success) throw new Error('Failed to collect project data');
+                
                 const previewSection = document.getElementById('previewSection');
                 const previewContent = document.getElementById('previewContent');
                 
@@ -747,7 +872,7 @@
                             <div class="pdf-page step-page">
                                 <div class="pdf-header">${projectData.website}</div>
                                 <h2>${step.title || `Step ${index + 1}`}</h2>
-                                ${step.image ? `<img src="${step.image}" alt="Step ${index + 1}">` : ''}
+                                ${step.image ? `<img src="${step.image}" alt="Step ${index + 1} illustration">` : ''}
                                 <p>${step.description || ''}</p>
                                 <div class="pdf-footer">
                                     ${projectData.author || 'Author Name'}<br>
@@ -771,27 +896,44 @@
                 previewSection.style.display = 'block';
                 previewSection.scrollIntoView({ behavior: 'smooth' });
                 saveToLocalStorage();
-            });
+            } catch (error) {
+                console.error('Error generating preview:', error);
+                alert('Error generating preview');
+            } finally {
+                spinner.style.display = 'none';
+            }
         }
 
         function generatePDF() {
-            generatePreview();
-            setTimeout(() => {
-                alert('To save as PDF:\n\n1. Press Ctrl+P (or Cmd+P on Mac)\n2. Select "Save as PDF" as destination\n3. In "More settings", make sure "Background graphics" is checked\n4. Click Save\n\nThis will preserve the dark background!');
-                window.print();
-            }, 1000);
+            generatePreview().then(() => {
+                setTimeout(() => {
+                    alert('To save as PDF:\n\n1. Press Ctrl+P (or Cmd+P on Mac)\n2. Select "Save as PDF" as destination\n3. In "More settings", make sure "Background graphics" is checked\n4. Click Save\n\nThis will preserve the dark background!');
+                    window.print();
+                }, 500);
+            });
         }
 
         function saveProject() {
+            const spinner = document.getElementById('pdfSpinner');
+            spinner.style.display = 'block';
+            
             collectProjectData().then(() => {
-                const dataStr = JSON.stringify(projectData, null, 2);
-                const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(dataBlob);
-                link.download = `${projectData.title || 'project'}.json`;
-                link.click();
-                saveToLocalStorage();
+                try {
+                    const dataStr = JSON.stringify(projectData, null, 2);
+                    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                    
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(dataBlob);
+                    link.download = `${projectData.title || 'project'}.json`;
+                    link.click();
+                    
+                    saveToLocalStorage();
+                } catch (error) {
+                    console.error('Error saving project:', error);
+                    alert('Error saving project');
+                } finally {
+                    spinner.style.display = 'none';
+                }
             });
         }
 
@@ -803,13 +945,19 @@
             input.onchange = function(e) {
                 const file = e.target.files[0];
                 if (file) {
+                    const spinner = document.getElementById('pdfSpinner');
+                    spinner.style.display = 'block';
+                    
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         try {
                             const data = JSON.parse(e.target.result);
                             loadProjectData(data);
                         } catch (error) {
-                            alert('Error loading project file');
+                            console.error('Error loading project file:', error);
+                            alert('Invalid project file');
+                        } finally {
+                            spinner.style.display = 'none';
                         }
                     };
                     reader.readAsText(file);
@@ -819,34 +967,13 @@
             input.click();
         }
 
-        function loadProjectData(data) {
-            document.getElementById('projectTitle').value = data.title || '';
-            document.getElementById('authorName').value = data.author || '';
-            document.getElementById('authorTitle').value = data.authorTitle || '';
-            document.getElementById('websiteUrl').value = data.website || 'jb24000.github.io';
-            document.getElementById('projectIntro').value = data.intro || '';
-            document.getElementById('toolsConcepts').value = data.tools || '';
-            document.getElementById('projectReflection').value = data.reflection || '';
-            
-            // Clear existing steps
-            document.getElementById('stepsContainer').innerHTML = '';
-            stepCounter = 0;
-            
-            // Load steps
-            if (data.steps) {
-                data.steps.forEach(step => {
-                    addStep();
-                    const lastStep = document.querySelector('.step-item:last-child');
-                    lastStep.querySelector('.step-title').value = step.title || '';
-                    lastStep.querySelector('.step-description').value = step.description || '';
-                });
-            }
-        }
-
-        // Auto-save on input change
+        // ========== Event Listeners ========== //
+        // Auto-save on input change with debounce
+        let saveTimeout;
         document.addEventListener('input', (e) => {
             if (e.target.matches('input, textarea')) {
-                saveToLocalStorage();
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveToLocalStorage, 1000);
             }
         });
 
@@ -861,83 +988,26 @@
             }
         });
 
-        // Register service worker
+        // Register service worker with improved error handling
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/PortfolioBuilder/sw.js')
-                .then(registration => console.log('Service Worker registered'))
-                .catch(error => console.log('Service Worker registration failed:', error));
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
         }
 
-        // Create floating install button
-        function createInstallButton() {
-            installButton = document.createElement('div');
-            installButton.innerHTML = `
-                <button style="
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                    border: none;
-                    padding: 15px 25px;
-                    border-radius: 50px;
-                    font-size: 16px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                    z-index: 10000;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    transition: transform 0.3s;
-                " 
-                onmouseover="this.style.transform='scale(1.05)'" 
-                onmouseout="this.style.transform='scale(1)'"
-                onclick="installApp()">
-                    📱 Install Portfolio Builder
-                </button>
-            `;
-            document.body.appendChild(installButton);
-        }
+        // Install button click handler
+        installButton.addEventListener('click', installPWA);
 
-        // Install function
-        window.installApp = function() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('✅ User accepted the install prompt');
-                        if (installButton) installButton.remove();
-                    } else {
-                        console.log('❌ User dismissed the install prompt');
-                    }
-                    deferredPrompt = null;
-                });
-            } else {
-                // Fallback for browsers that don't support prompt
-                alert('To install: Click the menu (⋮) → "Install Portfolio Builder" or "Add to Home Screen"');
-            }
-        }
-
-        // Check if already installed
-        window.addEventListener('appinstalled', () => {
-            console.log('✅ PWA was installed successfully!');
-            if (installButton) installButton.remove();
-            deferredPrompt = null;
-        });
-
-        // For testing - manually trigger prompt check after 2 seconds
+        // Check if already installed after 2 seconds
         setTimeout(() => {
-            if (!deferredPrompt && !installButton) {
-                console.log('ℹ️ Install prompt not available. Creating manual install helper...');
-                createInstallButton();
-                // Override the install function for manual installation
-                window.installApp = function() {
-                    alert('📱 To install this app:\n\n' +
-                          'Chrome/Edge: Click menu (⋮) → "Install Portfolio Builder"\n' +
-                          'Safari: Share button → "Add to Home Screen"\n' +
-                          'Firefox: Not yet supported, but you can bookmark it!');
-                };
+            if (!deferredPrompt && window.matchMedia('(display-mode: standalone)').matches) {
+                installButton.style.display = 'none';
             }
         }, 2000);
     </script>
