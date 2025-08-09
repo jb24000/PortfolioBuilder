@@ -11,7 +11,7 @@
   "lang": "en-US",
   "dir": "ltr",
   "prefer_related_applications": false,
-  "scope": "/PDFConverterPro/",
+  "scope": "/PortfolioBuilder/",
   "id": "doc-builder-pwa-v1",
   
   "icons": [
@@ -49,7 +49,7 @@
       "name": "New Project",
       "short_name": "New",
       "description": "Start a new documentation project",
-      "url": "/PDFConverterPro/?action=new",
+      "url": "/PortfolioBuilder/?action=new",
       "icons": [
         {
           "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTYiIGZpbGw9IiMyMjIyMjIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iNDgiPis8L3RleHQ+PC9zdmc+",
@@ -61,7 +61,7 @@
       "name": "Load Project",
       "short_name": "Load",
       "description": "Load an existing project",
-      "url": "/PDFConverterPro/?action=load",
+      "url": "/PortfolioBuilder/?action=load",
       "icons": [
         {
           "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTYiIGZpbGw9IiMzMzMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMzYiPvCfk4I8L3RleHQ+PC9zdmc+",
@@ -73,7 +73,7 @@
       "name": "Generate PDF",
       "short_name": "PDF",
       "description": "Generate PDF from current project",
-      "url": "/PDFConverterPro/?action=pdf",
+      "url": "/PortfolioBuilder/?action=pdf",
       "icons": [
         {
           "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTYiIGZpbGw9IiM0NDQ0NDQiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMzYiPvCfk4Q8L3RleHQ+PC9zdmc+",
@@ -107,7 +107,7 @@
   ],
   
   "share_target": {
-    "action": "/PDFConverterPro/share",
+    "action": "/PortfolioBuilder/share",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
@@ -135,7 +135,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+docbuilder",
-      "url": "/PDFConverterPro/?project=%s"
+      "url": "/PortfolioBuilder/?project=%s"
     }
   ]
 }
