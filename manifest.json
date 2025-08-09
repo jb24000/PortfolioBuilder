@@ -2,7 +2,7 @@
   "name": "Portfolio Builder - Document Builder",
   "short_name": "Portfolio Builder",
   "description": "Professional PDF document builder with dark mode, project management, and export features",
-  "start_url": "/PortfolioBuilder/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
@@ -11,7 +11,7 @@
   "lang": "en-US",
   "dir": "ltr",
   "prefer_related_applications": false,
-  "scope": "/PortfolioBuilder/",
+  "scope": "./",
   "id": "doc-builder-pwa-v1",
   
   "icons": [
