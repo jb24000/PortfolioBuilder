@@ -1,8 +1,8 @@
 // Service Worker for Portfolio Builder
 // Version 1.0.0
 
-const CACHE_NAME = 'pdf-converter-pro-v1.0.0';
-const DYNAMIC_CACHE = 'pdf-converter-pro-dynamic-v1.0.0';
+const CACHE_NAME = 'portfolio-builder-v1.0.0';
+const DYNAMIC_CACHE = 'portfolio-builder-dynamic-v1.0.0';
 
 // Core assets to cache immediately
 const STATIC_ASSETS = [
@@ -199,7 +199,7 @@ self.addEventListener('push', (event) => {
   };
   
   event.waitUntil(
-    self.registration.showNotification('PDF Converter Pro', options)
+    self.registration.showNotification('Portfolio Builder', options)
   );
 });
 
@@ -211,7 +211,7 @@ self.addEventListener('notificationclick', (event) => {
   
   if (event.action === 'open') {
     event.waitUntil(
-      clients.openWindow('/PDFConverterPro/')
+      clients.openWindow('/PortfolioBuilder/')
     );
   }
 });
