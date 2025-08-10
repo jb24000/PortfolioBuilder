@@ -16,21 +16,22 @@
   
   "icons": [
     {
-      "src": "/PortfolioBuilder/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/PortfolioBuilder/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
       "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTYwIDYwSDEzMlY3Mkg2MFY2MFpNNjAgOTBIMTMyVjEwMkg2MFY5MFpNNjAgMTIwSDEwMlYxMzJINjBWMTIwWiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=",
       "sizes": "192x192",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTE2MCAzMkgzODRWODhIMTYwVjMyWk0xNjAgMTkySDM4NFYyNDhIMTYwVjE5MlpNMTYwIDM1MkgyNzJWNDA4SDE2MFYzNTJaIiBmaWxsPSIjZmZmZmZmIi8+Cjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iOTYiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTYwIDYwSDEzMlY3Mkg2MFY2MFpNNjAgOTBIMTMyVjEwMkg2MFY5MFpNNjAgMTIwSDEwMlYxMzJINjBWMTIwWiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ],
   
@@ -42,9 +43,9 @@
       "url": "/PortfolioBuilder/?action=new",
       "icons": [
         {
-          "src": "/PortfolioBuilder/icons/new-96.png",
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTIiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTQ0IDI4VjQ0SDI4VjUySDQ0VjY4SDUyVjUySDY4VjQ0SDUyVjI4SDQ0WiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=",
           "sizes": "96x96",
-          "type": "image/png"
+          "type": "image/svg+xml"
         }
       ]
     }
