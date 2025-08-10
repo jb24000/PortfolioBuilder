@@ -12,6 +12,8 @@
     <meta name="apple-mobile-web-app-title" content="Portfolio">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="description" content="Professional PDF document builder with dark mode and export features">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     
     <!-- PWA Icons -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTYwIDYwSDEzMlY3Mkg2MFY2MFpNNjAgOTBIMTMyVjEwMkg2MFY5MFpNNjAgMTIwSDEwMlYxMzJINjBWMTIwWiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=">
@@ -991,7 +993,7 @@
         // Register service worker with improved error handling
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-           navigator.serviceWorker.register('./sw.js', { scope: './' })
+           navigator.serviceWorker.register('/PortfolioBuilder/sw.js', { scope: '/PortfolioBuilder/' })
               .then(reg => {
                 console.log('SW registered with scope:', reg.scope);
             })
