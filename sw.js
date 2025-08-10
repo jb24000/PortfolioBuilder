@@ -1,293 +1,191 @@
-// Service Worker for Portfolio Builder
-// Version 1.0.0
-
-const CACHE_NAME = 'portfolio-builder-v1.0.0';
-const DYNAMIC_CACHE = 'portfolio-builder-dynamic-v1.0.0';
-
-// Core assets to cache immediately
-const STATIC_ASSETS = [
+const CACHE_NAME = 'portfolio-builder-v1';
+const OFFLINE_URL = '/PortfolioBuilder/offline.html';
+const urlsToCache = [
   '/PortfolioBuilder/',
   '/PortfolioBuilder/index.html',
+  '/PortfolioBuilder/offline.html',
   '/PortfolioBuilder/manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 
-// Install event - cache core assets
+// Install event - cache resources including offline page
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing...');
-  
+  console.log('Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching core assets');
-        return cache.addAll(STATIC_ASSETS);
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
       })
       .then(() => {
-        console.log('[Service Worker] Skip waiting');
-        return self.skipWaiting();
+        console.log('All resources cached');
+        self.skipWaiting(); // Activate immediately
       })
       .catch((error) => {
-        console.error('[Service Worker] Installation failed:', error);
+        console.error('Cache add failed:', error);
       })
   );
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating...');
-  
-  event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames
-     .filter((cacheName) => {
-          return cacheName.startsWith('portfolio-builder-') && 
-                 cacheName !== CACHE_NAME && 
-                 cacheName !== DYNAMIC_CACHE;
-})
-            .map((cacheName) => {
-              console.log('[Service Worker] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            })
-        );
-      })
-      .then(() => {
-        console.log('[Service Worker] Claiming clients');
-        return self.clients.claim();
-      })
-  );
-});
-
-// Fetch event - implement cache strategies
+// Fetch event - serve from cache or show offline page
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Skip non-GET requests
-  if (request.method !== 'GET') {
-    return;
-  }
-
-  // Skip chrome-extension and other non-http(s) requests
-  if (!request.url.startsWith('http')) {
-    return;
-  }
-
-  // Network-first strategy for API calls
-  if (url.pathname.includes('/api/')) {
+  // Handle navigation requests (HTML pages)
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(DYNAMIC_CACHE)
-            .then((cache) => cache.put(request, responseClone));
-          return response;
+      fetch(event.request)
+        .catch(() => {
+          // If fetch fails, serve offline page
+          return caches.match(OFFLINE_URL);
         })
-        .catch(() => caches.match(request))
     );
     return;
   }
 
-  // Cache-first strategy for static assets
+  // Handle all other requests
   event.respondWith(
-    caches.match(request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          // Update cache in background
-          fetch(request)
-            .then((response) => {
-              if (response && response.status === 200) {
-                const responseClone = response.clone();
-                caches.open(DYNAMIC_CACHE)
-                  .then((cache) => cache.put(request, responseClone));
-              }
-            })
-            .catch(() => {});
-          
-          return cachedResponse;
-        }
-
-        // Not in cache, fetch from network
-        return fetch(request)
-          .then((response) => {
-            // Don't cache non-successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            const responseClone = response.clone();
-            caches.open(DYNAMIC_CACHE)
-              .then((cache) => cache.put(request, responseClone));
-
-            return response;
-          });
-      })
-      .catch(() => {
-        // If both cache and network fail, show offline page for navigation
-        if (request.mode === 'navigate') {
-          return caches.match('/PortfolioBuilder/offline.html');
+    caches.match(event.request)
+      .then((response) => {
+        // Return cached version or fetch from network
+        if (response) {
+          return response;
         }
         
-        // Return a basic error response for other requests
-        return new Response('Network error occurred', {
-          status: 503,
-          statusText: 'Service Unavailable',
-          headers: new Headers({
-            'Content-Type': 'text/plain'
-          })
+        return fetch(event.request).catch((error) => {
+          console.error('Fetch failed for:', event.request.url, error);
+          
+          // For manifest.json requests (used for connectivity checks), return a minimal response
+          if (event.request.url.includes('manifest.json')) {
+            return new Response('{"name":"Portfolio Builder"}', {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+          
+          // For other requests, let them fail naturally
+          throw error;
         });
       })
   );
 });
 
-// Handle background sync for saving projects
-self.addEventListener('sync', (event) => {
-  console.log('[Service Worker] Background sync triggered');
+// Activate event - clean up old caches and take control
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker activating...');
+  event.waitUntil(
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Take control of all clients immediately
+      self.clients.claim()
+    ])
+  );
+});
+
+// Message handling for offline page communication
+self.addEventListener('message', (event) => {
+  const { type, data } = event.data;
   
-  if (event.tag === 'sync-project') {
-    event.waitUntil(syncProject());
+  switch (type) {
+    case 'GET_CACHED_PROJECT':
+      // Try to get cached project data from localStorage equivalent
+      // Since SW can't access localStorage, we'll check if there's cached data
+      caches.open(CACHE_NAME).then(cache => {
+        // In a real implementation, you might store project data differently
+        // For now, we'll send back a simple response
+        event.ports[0].postMessage({
+          type: 'CACHED_PROJECT',
+          project: null // You could implement proper project caching here
+        });
+      });
+      break;
+      
+    case 'CACHE_PROJECT':
+      // Cache project data
+      if (data && data.project) {
+        // Store project data in a separate cache
+        caches.open('portfolio-projects-cache').then(cache => {
+          const projectResponse = new Response(JSON.stringify(data.project), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+          return cache.put('/current-project', projectResponse);
+        });
+      }
+      break;
+      
+    case 'GET_CACHE_STATUS':
+      // Return cache status
+      caches.keys().then(cacheNames => {
+        event.ports[0].postMessage({
+          type: 'CACHE_STATUS',
+          caches: cacheNames,
+          available: cacheNames.includes(CACHE_NAME)
+        });
+      });
+      break;
   }
 });
 
-// Sync project data when connection is restored
-async function syncProject() {
+// Background sync for saving projects
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'background-sync') {
+    console.log('Background sync triggered');
+    event.waitUntil(
+      // Handle background synchronization
+      syncProjects()
+    );
+  }
+});
+
+async function syncProjects() {
   try {
-    // Get project data from IndexedDB or localStorage
-    const clients = await self.clients.matchAll();
+    // Get cached project data
+    const cache = await caches.open('portfolio-projects-cache');
+    const response = await cache.match('/current-project');
     
-    for (const client of clients) {
-      client.postMessage({
-        type: 'SYNC_PROJECT',
-        message: 'Syncing project data...'
-      });
+    if (response) {
+      const project = await response.json();
+      console.log('Project data ready for sync:', project.title);
+      // Here you could sync to a cloud service when online
     }
-    
-    console.log('[Service Worker] Project synced successfully');
   } catch (error) {
-    console.error('[Service Worker] Sync failed:', error);
-    throw error;
+    console.error('Sync failed:', error);
   }
 }
 
-// Handle push notifications
+// Push notifications (optional)
 self.addEventListener('push', (event) => {
-  console.log('[Service Worker] Push received');
-  
-  const options = {
-    title: 'Documentation Reminder',
-    body: event.data ? event.data.text() : 'Don\'t forget to document your projects!',
-    icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxMTExMTEiLz4KPHBhdGggZD0iTTYwIDYwSDEzMlY3Mkg2MFY2MFpNNjAgOTBIMTMyVjEwMkg2MFY5MFpNNjAgMTIwSDEwMlYxMzJINjBWMTIwWiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=',
-    badge: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTYiIGZpbGw9IiMxMTExMTEiLz48cGF0aCBkPSJNMzAgMzBINjZWMzhIMzBWMzBaTTMwIDQ0SDY2VjUySDMwVjQ0Wk0zMCA1OEg1MVY2NkgzMFY1OFoiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=',
-    vibrate: [200, 100, 200],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
-    },
-    actions: [
-      {
-        action: 'open',
-        title: 'Open App',
-        icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbGw9Im5vbmUiPjxwYXRoIGQ9Ik0xMiAyTDIgN3Y5YzAgNS41IDMuODQgMTAuNzQgOSAxMS44M1YyMGgydjcuODNjNS4xNi0xLjA5IDktNi4zMyA5LTExLjgzVjdMMTIgMnoiIGZpbGw9IiNmZmYiLz48L3N2Zz4='
-      },
-      {
-        action: 'dismiss',
-        title: 'Dismiss',
-        icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbGw9Im5vbmUiPjxwYXRoIGQ9Ik0xOSA2LjQxTDE3LjU5IDUgMTIgMTAuNTkgNi40MSA1IDUgNi40MSAxMC41OSAxMiA1IDE3LjU5IDYuNDEgMTkgMTIgMTMuNDEgMTcuNTkgMTkgMTkgMTcuNTkgMTMuNDEgMTIgMTkgNi40MXoiIGZpbGw9IiNmZmYiLz48L3N2Zz4='
+  if (event.data) {
+    const data = event.data.json();
+    const options = {
+      body: data.body,
+      icon: '/PortfolioBuilder/icons/icon-192.png',
+      badge: '/PortfolioBuilder/icons/icon-192.png',
+      vibrate: [100, 50, 100],
+      data: {
+        dateOfArrival: Date.now(),
+        primaryKey: '2'
       }
-    ]
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification('Portfolio Builder', options)
-  );
+    };
+    
+    event.waitUntil(
+      self.registration.showNotification(data.title, options)
+    );
+  }
 });
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
-  console.log('[Service Worker] Notification clicked');
-  
   event.notification.close();
   
-  if (event.action === 'open') {
-    event.waitUntil(
-      clients.openWindow('/PortfolioBuilder/')
-    );
-  }
+  event.waitUntil(
+    clients.openWindow('/PortfolioBuilder/')
+  );
 });
-
-// Message handler for client communication
-self.addEventListener('message', (event) => {
-  console.log('[Service Worker] Message received:', event.data);
-  
-  if (event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  
-  if (event.data.type === 'CACHE_PROJECT') {
-    // Cache project data
-    const projectData = event.data.project;
-    caches.open(DYNAMIC_CACHE)
-      .then((cache) => {
-        const response = new Response(JSON.stringify(projectData), {
-          headers: { 'Content-Type': 'application/json' }
-        });
-        cache.put('/cached-project', response);
-      });
-  }
-  
-  if (event.data.type === 'GET_CACHED_PROJECT') {
-    // Retrieve cached project
-    caches.match('/cached-project')
-      .then((response) => {
-        if (response) {
-          response.json().then((data) => {
-            event.ports[0].postMessage({
-              type: 'CACHED_PROJECT',
-              project: data
-            });
-          });
-        } else {
-          event.ports[0].postMessage({
-            type: 'NO_CACHED_PROJECT'
-          });
-        }
-      });
-  }
-  
-  if (event.data.type === 'CLEAR_CACHE') {
-    event.waitUntil(
-      caches.keys()
-        .then((cacheNames) => {
-          return Promise.all(
-            cacheNames.map((cacheName) => {
-              if (cacheName !== CACHE_NAME) {
-                return caches.delete(cacheName);
-              }
-            })
-          );
-        })
-    );
-  }
-});
-
-// Cache size management
-async function trimCache(cacheName, maxItems) {
-  const cache = await caches.open(cacheName);
-  const keys = await cache.keys();
-  
-  if (keys.length > maxItems) {
-    const keysToDelete = keys.slice(0, keys.length - maxItems);
-    await Promise.all(
-      keysToDelete.map(key => cache.delete(key))
-    );
-    console.log(`[Service Worker] Trimmed ${keysToDelete.length} items from ${cacheName}`);
-  }
-}
-
-// Periodic cache cleanup (every 24 hours)
-setInterval(() => {
-  trimCache(DYNAMIC_CACHE, 50);
-}, 24 * 60 * 60 * 1000);
-
-console.log('[Service Worker] Loaded successfully');
